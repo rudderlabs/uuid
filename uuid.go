@@ -54,25 +54,30 @@ func init() {
 func ParseUUID(input string) (UUID, error) {
 	var u UUID
 	j := 0
-	for _, r := range input {
+	for i := 0; i < len(input); i++ {
+		b := input[i]
 		switch {
-		case r == '-' && j&1 == 0:
-			continue
-		case r >= '0' && r <= '9' && j < 32:
-			u[j/2] |= byte(r-'0') << uint(4-j&1*4)
-		case r >= 'a' && r <= 'f' && j < 32:
-			u[j/2] |= byte(r-'a'+10) << uint(4-j&1*4)
-		case r >= 'A' && r <= 'F' && j < 32:
-			u[j/2] |= byte(r-'A'+10) << uint(4-j&1*4)
 		default:
-			return UUID{}, fmt.Errorf("invalid UUID %q", input)
+			fallthrough
+		case j == 32:
+			goto err
+		case b == '-':
+			continue
+		case '0' <= b && b <= '9':
+			b -= '0'
+		case 'a' <= b && b <= 'f':
+			b -= 'a' - 10
+		case 'A' <= b && b <= 'F':
+			b -= 'A' - 10
 		}
-		j += 1
+		u[j/2] |= b << byte(^j&1<<2)
+		j++
 	}
-	if j != 32 {
-		return UUID{}, fmt.Errorf("invalid UUID %q", input)
+	if j == 32 {
+		return u, nil
 	}
-	return u, nil
+err:
+	return UUID{}, fmt.Errorf("invalid UUID %q", input)
 }
 
 // FromBytes converts a raw byte slice to an UUID. It will panic if the slice
@@ -143,13 +148,12 @@ func (u UUID) Bytes() []byte {
 // UUIDs in the IETF variant.
 func (u UUID) Variant() int {
 	x := u[8]
-	if x&0x80 == 0 {
+	switch byte(0) {
+	case x & 0x80:
 		return VariantNCSCompat
-	}
-	if x&0x40 == 0 {
+	case x & 0x40:
 		return VariantIETF
-	}
-	if x&0x20 == 0 {
+	case x & 0x20:
 		return VariantMicrosoft
 	}
 	return VariantFuture
