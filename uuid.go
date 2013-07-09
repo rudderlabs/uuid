@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// The uuid package can be used to generate and parse universally unique
+// Package uuid can be used to generate and parse universally unique
 // identifiers, a standardized format in the form of a 128 bit number.
 //
 // http://tools.ietf.org/html/rfc4122
@@ -49,9 +49,9 @@ func init() {
 	}
 }
 
-// ParseUUID parses a 32 digit hexadecimal number (that might contain hypens)
-// represanting an UUID.
-func ParseUUID(input string) (UUID, error) {
+// Parse parses a 32 digit hexadecimal number (that might contain hyphens)
+// representing an UUID.
+func Parse(input string) (UUID, error) {
 	var u UUID
 	j := 0
 	for i := 0; i < len(input); i++ {
@@ -91,9 +91,9 @@ func FromBytes(input []byte) UUID {
 	return u
 }
 
-// RandomUUID generates a totally random UUID (version 4) as described in
+// NewRandom generates a totally random UUID (version 4) as described in
 // RFC 4122.
-func RandomUUID() UUID {
+func NewRandom() UUID {
 	var u UUID
 	io.ReadFull(rand.Reader, u[:])
 	u[6] &= 0x0F // clear version
@@ -105,10 +105,10 @@ func RandomUUID() UUID {
 
 var timeBase = time.Date(1582, time.October, 15, 0, 0, 0, 0, time.UTC).Unix()
 
-// TimeUUID generates a new time based UUID (version 1) as described in RFC
+// NewTime generates a new time based UUID (version 1) as described in RFC
 // 4122. This UUID contains the MAC address of the node that generated the
 // UUID, a timestamp and a sequence number.
-func TimeUUID() UUID {
+func NewTime() UUID {
 	var u UUID
 
 	now := time.Now().In(time.UTC)

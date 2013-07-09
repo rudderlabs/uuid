@@ -38,9 +38,9 @@ var tests = []struct {
 
 func TestPredefined(t *testing.T) {
 	for i := range tests {
-		uuid, err := ParseUUID(tests[i].input)
+		uuid, err := Parse(tests[i].input)
 		if err != nil {
-			t.Errorf("ParseUUID #%d: %v", i, err)
+			t.Errorf("Parse #%d: %v", i, err)
 			continue
 		}
 
@@ -61,9 +61,9 @@ func TestPredefined(t *testing.T) {
 	}
 }
 
-func TestRandomUUID(t *testing.T) {
+func TestNewRandom(t *testing.T) {
 	for i := 0; i < 20; i++ {
-		uuid := RandomUUID()
+		uuid := NewRandom()
 
 		if variant := uuid.Variant(); variant != VariantIETF {
 			t.Errorf("wrong variant. expected %d got %d", VariantIETF, variant)
@@ -74,11 +74,11 @@ func TestRandomUUID(t *testing.T) {
 	}
 }
 
-func TestTimeUUID(t *testing.T) {
+func TestNewTime(t *testing.T) {
 	var node []byte
 	timestamp := uint64(0)
 	for i := 0; i < 20; i++ {
-		uuid := TimeUUID()
+		uuid := NewTime()
 
 		if variant := uuid.Variant(); variant != VariantIETF {
 			t.Errorf("wrong variant. expected %d got %d", VariantIETF, variant)
