@@ -10,9 +10,11 @@ package uuid
 
 import (
 	"crypto/rand"
-	"fmt"
+	"encoding/hex"
+	"errors"
 	"io"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -77,7 +79,7 @@ func Parse(input string) (UUID, error) {
 		return u, nil
 	}
 err:
-	return UUID{}, fmt.Errorf("invalid UUID %q", input)
+	return UUID{}, errors.New("invalid UUID " + strconv.Quote(input))
 }
 
 // FromBytes converts a raw byte slice to an UUID. It will panic if the slice
@@ -134,8 +136,13 @@ func NewTime() UUID {
 // String returns the UUID in it's canonical form, a 32 digit hexadecimal
 // number in the form of xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
 func (u UUID) String() string {
-	return fmt.Sprintf("%x-%x-%x-%x-%x",
-		u[0:4], u[4:6], u[6:8], u[8:10], u[10:16])
+	buf := [36]byte{8: '-', 13: '-', 18: '-', 23: '-'}
+	hex.Encode(buf[0:], u[0:4])
+	hex.Encode(buf[9:], u[4:6])
+	hex.Encode(buf[14:], u[6:8])
+	hex.Encode(buf[19:], u[8:10])
+	hex.Encode(buf[24:], u[10:])
+	return string(buf[:])
 }
 
 // Bytes returns the raw byte slice for this UUID. A UUID is always 128 bits
